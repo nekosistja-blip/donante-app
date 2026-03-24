@@ -10,13 +10,14 @@ vamScreeni = df['vamScreeni']
 # Limpiar cédulas y valores relevantes
 vamDonante['vdonDocIde'] = vamDonante['vdonDocIde'].astype(str).str.strip()
 vamScreeni['vscrLabMed'] = vamScreeni['vscrLabMed'].astype(str).str.strip()
+vamScreeni['vscrNroEti'] = vamScreeni['vscrNroEti'].astype(str).str.strip()
 
 # Función convertir sangre
 def convertir_grupo(c):
     grupos = {
-        1: "A+", 2: "B+", 3: "AB+", 4: "O+",
-        5: "A-", 6: "B-", 7: "AB-", 8: "O-",
-        9: " ", 10: " ", 11: "IN+", 12: "B-"
+        1: "A", 2: "B", 3: "AB", 4: "O",
+        5: "A+", 6: "B+", 7: "AB+", 8: "O+",
+        9: "A-", 10: "B-", 11: "AB-", 12: "O-"
     }
     return grupos.get(c, "Desconocido")
 
@@ -25,6 +26,17 @@ def obtener_rechazo(valor_labmed):
     if str(valor_labmed).strip().upper() == 'R':
         return 'RECHAZADO'
     return ''
+
+
+# Función para identificar puesto
+def obtener_puesto(codigo_etiqueta):
+    codigo = str(codigo_etiqueta).strip()
+    prefijo = codigo[:3]
+    if prefijo == '001':
+        return 'PUESTO FIJO', 'blue'
+    if prefijo == '002':
+        return 'PUESTO MOVIL', 'green'
+    return '', ''
 
 # Función búsqueda
 def buscar(cedula):
@@ -37,7 +49,7 @@ def buscar(cedula):
     return info, donaciones
 
 # UI
-st.title('🩸 Sistema de Consulta de Donantes - B.S.R.D.T')
+st.title('🩸 Sistema de Consulta de Donantes')
 
 cedula = st.text_input('📘 Ingresa Cédula de Identidad:')
 if st.button('🔎 Buscar'):
@@ -58,6 +70,13 @@ if st.button('🔎 Buscar'):
                 st.write(f"📅 Fecha: {fila.vscrFechas}")
                 st.write(f"🩸 Grupo sanguíneo: {convertir_grupo(fila.vscrGrsCon)}")
                 st.write(f"💬 Comentario: {fila.vscrComent}")
+
+                puesto, color_puesto = obtener_puesto(fila.get('vscrNroEti', ''))
+                if puesto:
+                    st.markdown(
+                        f"<p style='color:{color_puesto}; font-weight:bold;'>📍 {puesto}</p>",
+                        unsafe_allow_html=True
+                    )
 
                 rechazo = obtener_rechazo(fila.get('vscrLabMed', ''))
                 if rechazo == 'RECHAZADO':
