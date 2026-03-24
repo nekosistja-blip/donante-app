@@ -1,59 +1,109 @@
 import streamlit as st
 import pandas as pd
 
+st.set_page_config(page_title="Sistema de Consulta de Donantes", page_icon="🩸", layout="centered")
 
 # Cargar Excel
-df = pd.read_excel('GRUPO SANGRE.xlsx', sheet_name=None)
-vamDonante = df['vamDonante']
-vamScreeni = df['vamScreeni']
+DF = pd.read_excel('GRUPO SANGRE.xlsx', sheet_name=None)
+vamDonante = DF['vamDonante'].copy()
+vamScreeni = DF['vamScreeni'].copy()
 
-# Limpiar cédulas y valores relevantes
+# Limpiar datos clave
 vamDonante['vdonDocIde'] = vamDonante['vdonDocIde'].astype(str).str.strip()
-vamScreeni['vscrLabMed'] = vamScreeni['vscrLabMed'].astype(str).str.strip()
-vamScreeni['vscrNroEti'] = vamScreeni['vscrNroEti'].astype(str).str.strip()
+vamScreeni['vdonCodDon'] = vamScreeni['vdonCodDon'].astype(str).str.strip()
+if 'vscrLabMed' in vamScreeni.columns:
+    vamScreeni['vscrLabMed'] = vamScreeni['vscrLabMed'].astype(str).str.strip()
+if 'vscrNroEti' in vamScreeni.columns:
+    vamScreeni['vscrNroEti'] = vamScreeni['vscrNroEti'].astype(str).str.strip()
 
-# Función convertir sangre
-def convertir_grupo(c):
+
+def convertir_grupo(codigo):
     grupos = {
         1: "A", 2: "B", 3: "AB", 4: "O",
         5: "A+", 6: "B+", 7: "AB+", 8: "O+",
         9: "A-", 10: "B-", 11: "AB-", 12: "O-"
     }
-    return grupos.get(c, "Desconocido")
-
-# Función para identificar rechazo
-def obtener_rechazo(valor_labmed):
-    if str(valor_labmed).strip().upper() == 'R':
-        return 'RECHAZADO'
-    return ''
+    return grupos.get(codigo, "Desconocido")
 
 
-# Función para identificar puesto
-def obtener_puesto(codigo_etiqueta):
-    codigo = str(codigo_etiqueta).strip()
-    prefijo = codigo[:3]
-    if prefijo == '001':
-        return 'PUESTO FIJO', 'blue'
-    if prefijo == '002':
-        return 'PUESTO MOVIL', 'green'
-    return '', ''
-
-# Función búsqueda
 def buscar(cedula):
-    d = vamDonante[vamDonante['vdonDocIde'] == str(cedula).strip()]
+    cedula = str(cedula).strip()
+    d = vamDonante[vamDonante['vdonDocIde'] == cedula]
     if d.empty:
         return None, None
+
     info = d.iloc[0]
-    cod = info['vdonCodDon']
+    cod = str(info['vdonCodDon']).strip()
     donaciones = vamScreeni[vamScreeni['vdonCodDon'] == cod].copy()
     return info, donaciones
 
-# UI
-st.title('🩸 Sistema de Consulta de Donantes')
+
+def obtener_rechazo(valor):
+    return "RECHAZADO" if str(valor).strip().upper() == "R" else ""
+
+
+def obtener_puesto(vscr_nro_eti):
+    prefijo = str(vscr_nro_eti).strip()[:3]
+    if prefijo == "001":
+        return "PUESTO FIJO", "#1d4ed8"  # azul
+    if prefijo == "002":
+        return "PUESTO MOVIL", "#16a34a"  # verde
+    return "", "#6b7280"
+
+
+st.markdown("""
+    <style>
+    .main-title {
+        text-align: center;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.2rem;
+    }
+    .subtitle {
+        text-align: center;
+        color: #6b7280;
+        margin-bottom: 1.2rem;
+    }
+    .card {
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        padding: 16px;
+        margin-bottom: 14px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        background: #ffffff;
+    }
+    .badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        margin-right: 8px;
+        margin-top: 6px;
+    }
+    .badge-red {
+        background: #fee2e2;
+        color: #b91c1c;
+        border: 1px solid #fecaca;
+    }
+    .donation-date {
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+    .field-line {
+        margin: 3px 0;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+st.markdown('<div class="main-title">🩸 Sistema de Consulta de Donantes</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle">Consulta rápida de datos y donaciones</div>', unsafe_allow_html=True)
 
 cedula = st.text_input('📘 Ingresa Cédula de Identidad:')
-if st.button('🔎 Buscar'):
+
+if st.button('🔎 Buscar', use_container_width=True):
     info, donaciones = buscar(cedula)
+
     if info is None:
         st.error('No se encontró el donante.')
     else:
@@ -66,25 +116,29 @@ if st.button('🔎 Buscar'):
         if not donaciones.empty:
             st.subheader('🩺 Historial de Donaciones')
             for _, fila in donaciones.iterrows():
-                st.write('---')
-                st.write(f"📅 Fecha: {fila.vscrFechas}")
-                st.write(f"🩸 Grupo sanguíneo: {convertir_grupo(fila.vscrGrsCon)}")
-                st.write(f"💬 Comentario: {fila.vscrComent}")
-
-                puesto, color_puesto = obtener_puesto(fila.get('vscrNroEti', ''))
-                if puesto:
-                    st.markdown(
-                        f"<p style='color:{color_puesto}; font-weight:bold;'>📍 {puesto}</p>",
-                        unsafe_allow_html=True
-                    )
-
                 rechazo = obtener_rechazo(fila.get('vscrLabMed', ''))
-                if rechazo == 'RECHAZADO':
-                    st.markdown(
-                        "<p style='color:red; font-weight:bold;'>❌ RECHAZADO</p>",
-                        unsafe_allow_html=True
-                    )
-                else:
-                    st.write('')
+                puesto, color_puesto = obtener_puesto(fila.get('vscrNroEti', ''))
+                comentario = fila.get('vscrComent', '')
+                fecha = fila.get('vscrFechas', '')
+                grupo = convertir_grupo(fila.get('vscrGrsCon', None))
+
+                badges = ""
+                if puesto:
+                    badges += f'<span class="badge" style="background:{color_puesto}1A;color:{color_puesto};border:1px solid {color_puesto}55;">{puesto}</span>'
+                if rechazo:
+                    badges += '<span class="badge badge-red">RECHAZADO</span>'
+
+                st.markdown(
+                    f'''
+                    <div class="card">
+                        <div class="donation-date">📅 Fecha: {fecha}</div>
+                        <div class="field-line"><strong>🩸 Grupo sanguíneo:</strong> {grupo}</div>
+                        <div class="field-line"><strong>🏷️ Código etiqueta:</strong> {fila.get("vscrNroEti", "")}</div>
+                        <div class="field-line"><strong>💬 Comentario:</strong> {comentario}</div>
+                        <div>{badges}</div>
+                    </div>
+                    ''',
+                    unsafe_allow_html=True,
+                )
         else:
-            st.info("Este donante no tiene donaciones registradas.")
+            st.info('Este donante no tiene donaciones registradas.')
