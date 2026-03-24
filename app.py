@@ -1,6 +1,14 @@
 import streamlit as st
 import pandas as pd
-
+hide_streamlit_style = """
+<style>
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+header {visibility: hidden;}
+.stDeployButton {display:none;}
+</style>
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 # Cargar Excel
 df = pd.read_excel('GRUPO SANGRE.xlsx', sheet_name=None)
 vamDonante = df['vamDonante']
