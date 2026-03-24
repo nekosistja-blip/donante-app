@@ -45,9 +45,9 @@ def obtener_rechazo(valor):
 def obtener_puesto(vscr_nro_eti):
     prefijo = str(vscr_nro_eti).strip()[:3]
     if prefijo == "001":
-        return "PUESTO FIJO", "#1d4ed8"  # azul
+        return "PUESTO FIJO", "#16a34a"  # verde
     if prefijo == "002":
-        return "PUESTO MOVIL", "#16a34a"  # verde
+        return "PUESTO MOVIL", "#dc2626"  # rojo
     return "", "#6b7280"
 
 
@@ -143,7 +143,6 @@ if st.button('🔎 Buscar', use_container_width=True):
                     <div class="card">
                         <div class="donation-date">📅 Fecha: {fecha}</div>
                         <div class="field-line"><strong>🩸 Grupo sanguíneo:</strong> {grupo}</div>
-                        <div class="field-line"><strong>🏷️ Lado izquierdo (3 primeros dígitos):</strong> {str(fila.get("vscrNroEti", "")).strip()[:3]}</div>
                         <div class="field-line"><strong>💬 Comentario:</strong> {comentario}</div>
                         <div>{badges}</div>
                     </div>
