@@ -53,6 +53,16 @@ def obtener_puesto(vscr_nro_eti):
 
 st.markdown("""
     <style>
+    #MainMenu,
+    header,
+    footer,
+    [data-testid="stToolbar"],
+    [data-testid="stDecoration"],
+    [data-testid="stStatusWidget"],
+    [data-testid="collapsedControl"] {
+        display: none !important;
+        visibility: hidden !important;
+    }
     .main-title {
         text-align: center;
         font-size: 2rem;
@@ -133,7 +143,7 @@ if st.button('🔎 Buscar', use_container_width=True):
                     <div class="card">
                         <div class="donation-date">📅 Fecha: {fecha}</div>
                         <div class="field-line"><strong>🩸 Grupo sanguíneo:</strong> {grupo}</div>
-                        <div class="field-line"><strong>🏷️ Código etiqueta:</strong> {fila.get("vscrNroEti", "")}</div>
+                        <div class="field-line"><strong>🏷️ Lado izquierdo (3 primeros dígitos):</strong> {str(fila.get("vscrNroEti", "")).strip()[:3]}</div>
                         <div class="field-line"><strong>💬 Comentario:</strong> {comentario}</div>
                         <div>{badges}</div>
                     </div>
