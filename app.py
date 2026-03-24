@@ -1,9 +1,6 @@
 import streamlit as st
 import pandas as pd
-import sys
 
-# Mostrar la versión de Python
-st.write(f"Versión de Python en Streamlit Cloud: {sys.version}")
 
 # Cargar Excel
 df = pd.read_excel('GRUPO SANGRE.xlsx', sheet_name=None)
