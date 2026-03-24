@@ -42,8 +42,8 @@ def obtener_rechazo(valor):
     return "RECHAZADO" if str(valor).strip().upper() == "R" else ""
 
 
-def obtener_puesto(vscr_nro_eti):
-    prefijo = str(vscr_nro_eti).strip()[:3]
+def obtener_puesto(vscrNroeti):
+    prefijo = str(vscrNroeti).strip()[:3]
     if prefijo == "001":
         return "PUESTO FIJO", "#16a34a"  # verde
     if prefijo == "002":
