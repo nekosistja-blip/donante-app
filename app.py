@@ -42,13 +42,13 @@ def obtener_rechazo(valor):
     return "RECHAZADO" if str(valor).strip().upper() == "R" else ""
 
 
-def obtener_puesto(vscrNroeti):
-    prefijo = str(vscrNroeti).strip()[:3]
+def obtener_puesto(vscr_nro_eti):
+    prefijo = str(vscr_nro_eti).strip()[:3]
     if prefijo == "001":
-        return "PUESTO FIJO", "#16a34a"  # verde
+        return "PUESTO FIJO"
     if prefijo == "002":
-        return "PUESTO MOVIL", "#dc2626"  # rojo
-    return "", "#6b7280"
+        return "PUESTO MOVIL"
+    return ""
 
 
 st.markdown("""
@@ -82,26 +82,25 @@ st.markdown("""
         box-shadow: 0 1px 4px rgba(0,0,0,0.05);
         background: #ffffff;
     }
-    .badge {
-        display: inline-block;
-        padding: 6px 12px;
-        border-radius: 999px;
-        font-size: 0.85rem;
-        font-weight: 700;
-        margin-right: 8px;
-        margin-top: 6px;
-    }
-    .badge-red {
-        background: #fee2e2;
-        color: #b91c1c;
-        border: 1px solid #fecaca;
-    }
     .donation-date {
         font-weight: 700;
         margin-bottom: 8px;
     }
     .field-line {
         margin: 3px 0;
+    }
+    .status-line {
+        margin-top: 8px;
+        font-weight: 800;
+    }
+    .status-rechazado {
+        color: #b91c1c;
+    }
+    .status-puesto-fijo {
+        color: #16a34a;
+    }
+    .status-puesto-movil {
+        color: #dc2626;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -127,26 +126,31 @@ if st.button('🔎 Buscar', use_container_width=True):
             st.subheader('🩺 Historial de Donaciones')
             for _, fila in donaciones.iterrows():
                 rechazo = obtener_rechazo(fila.get('vscrLabMed', ''))
-                puesto, color_puesto = obtener_puesto(fila.get('vscrNroEti', ''))
+                puesto = obtener_puesto(fila.get('vscrNroEti', ''))
                 comentario = fila.get('vscrComent', '')
                 fecha = fila.get('vscrFechas', '')
                 grupo = convertir_grupo(fila.get('vscrGrsCon', None))
 
-                badges = ""
-                if puesto:
-                    badges += f'<span class="badge" style="background:{color_puesto}1A;color:{color_puesto};border:1px solid {color_puesto}55;">{puesto}</span>'
+                rechazo_html = ''
                 if rechazo:
-                    badges += '<span class="badge badge-red">RECHAZADO</span>'
+                    rechazo_html = '<div class="status-line status-rechazado">RECHAZADO</div>'
+
+                puesto_html = ''
+                if puesto == 'PUESTO FIJO':
+                    puesto_html = '<div class="status-line status-puesto-fijo">PUESTO FIJO</div>'
+                elif puesto == 'PUESTO MOVIL':
+                    puesto_html = '<div class="status-line status-puesto-movil">PUESTO MOVIL</div>'
 
                 st.markdown(
-                    f'''
+                    f"""
                     <div class="card">
                         <div class="donation-date">📅 Fecha: {fecha}</div>
                         <div class="field-line"><strong>🩸 Grupo sanguíneo:</strong> {grupo}</div>
                         <div class="field-line"><strong>💬 Comentario:</strong> {comentario}</div>
-                        <div>{badges}</div>
+                        {rechazo_html}
+                        {puesto_html}
                     </div>
-                    ''',
+                    """,
                     unsafe_allow_html=True,
                 )
         else:
