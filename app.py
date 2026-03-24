@@ -19,7 +19,7 @@ vamDonante['vdonDocIde'] = vamDonante['vdonDocIde'].astype(str).str.strip()
 
 # Función convertir sangre
 def convertir_grupo(c):
-    grupos = {1:"A+", 2:"B+", 3:"AB+", 4:"O+", 5:"A-", 6:"B-", 7:"AB-", 8:"O-", 9:"A-",10:"B-",11:"AB-",12:"O-"}
+    grupos = {1:"A+", 2:"B+", 3:"AB+", 4:"O+", 5:"A-", 6:"B-", 7:"AB-", 8:"O-", 9:" ",10:" ",11:"IN+",12:"B+"}
     return grupos.get(c, "Desconocido")
 
 # Función búsqueda
