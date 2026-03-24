@@ -37,7 +37,7 @@ def buscar(cedula):
     return info, donaciones
 
 # UI
-st.title('🩸 Sistema de Consulta de Donantes')
+st.title('🩸 Sistema de Consulta de Donantes - B.S.R.D.T')
 
 cedula = st.text_input('📘 Ingresa Cédula de Identidad:')
 if st.button('🔎 Buscar'):
