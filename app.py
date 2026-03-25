@@ -49,7 +49,7 @@ def obtener_puesto(vscrNroEti):
     if prefijo == "001":
         return "PUESTO FIJO", "green"
     if prefijo == "002":
-        return "PUESTO MOVIL", "red"
+        return "PUESTO MOVIL", "orange"
     return "", ""
 
 def es_rechazado(vscrLabMed):
